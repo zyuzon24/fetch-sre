@@ -1,1 +1,75 @@
-# fetch-sre
+# Fetch SRE Project (Python)
+
+## Overview
+
+This project monitors the availability of HTTP endpoints defined in a YAML configuration file and outputs cumulative availability by domain.
+
+The code is based on the official Python starter file provided by Fetch.
+
+---
+
+
+
+##  Requirements 
+
+- Must accept a YAML configuration as command line argument
+- YAML format must match that in the sample provided
+- Must accurately determine the availability of all endpoints during every check cycle
+- Endpoints are only considered available if they meet the following conditions
+    - Status code is between 200 and 299
+    - Endpoint responds in 500ms or less
+- Must return availability by domain
+- Must ignore port numbers when determining domain
+- Must determine availability cumulatively
+- Check cycles must run and log availability results every 15 seconds regardless of the number of endpoints or their response times
+
+---
+
+## Installation
+
+### Install Python dependencies
+
+```
+pip install requests pyyaml
+```
+
+## Usage
+
+Run the script with the YAML file path as an argument:
+```
+python main.py sample.yaml
+```
+The script will continue running until manually stopped (e.g., `Ctrl+C`).
+
+## Issues Identified and Changes Made
+
+### 1. Missing Method Default
+
+- **Problem:** `method` field is optional, but if omitted, `requests.request()` receives `NoneType` object and raises an error.
+- **Fix:** Used `endpoint.get('method', 'GET').upper()` to default to `'GET'`.
+- **Identified by:** Running the code and getting an error
+```
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/requests/sessions.py", line 564, in request
+    method=method.upper(),
+           ^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'upper'
+```
+
+### 2. Headers Could Be NoneType
+
+- **Problem:** Missing `headers` field resulted in `NoneType`, which can cause issues in the event of iterating through multiple headers.
+- **Fix:** Used `endpoint.get('headers', {})` to default to an empty dictionary.
+
+### 3. No Timeout
+
+- **Problem:** Response times were not measured as it was a missing parameter in `requests.request()`. 
+- **Fix:** Measured latency using `time.time()` and enforced a 500ms timeout with the `requests` library.
+https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
+
+### 4. Set Constants
+
+- **Problem:** Hardcoding the check frequency and timeout is not ideal for maintainability if the numbers need to be changed in the future.
+- **Fix:** Create constants at the beginning of the script for easier maintanability of the check frequency and timeout.
