@@ -3,6 +3,9 @@ import requests
 import time
 from collections import defaultdict
 
+CHECK_INTERVAL = 15  # REQUIREMENT: Check every 15 seconds
+TIMEOUT = 0.5  # REQUIREMENT: Endpoint responds in 500ms
+
 # Function to load configuration from the YAML file
 def load_config(file_path):
     with open(file_path, 'r') as file:
@@ -16,9 +19,16 @@ def check_health(endpoint):
     body = endpoint.get('body')
 
     try:
-        print
-        response = requests.request(method, url, headers=headers, json=body)
-        if 200 <= response.status_code < 300:
+        start = time.time()
+        response = requests.request(
+            method, 
+            url, 
+            headers=headers, 
+            json=body,
+            timeout=TIMEOUT
+        )
+        duration_ms = (time.time() - start) * 1000
+        if 200 <= response.status_code < 300 and duration_ms <= 500:
             return "UP"
         else:
             return "DOWN"
@@ -45,7 +55,7 @@ def monitor_endpoints(file_path):
             print(f"{domain} has {availability}% availability percentage")
 
         print("---")
-        time.sleep(15)
+        time.sleep(CHECK_INTERVAL)
 
 # Entry point of the program
 if __name__ == "__main__":
