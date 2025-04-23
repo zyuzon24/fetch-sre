@@ -59,7 +59,12 @@ def monitor_endpoints(file_path):
         # Log cumulative availability percentages
         print("\n--- Availability Report ---")
         for domain, stats in domain_stats.items():
-            availability = round(100 * stats["up"] / stats["total"])
+            up = stats["up"]
+            total = stats["total"]
+            if total > 0:
+                availability = round((up / total) * 100)
+            else:
+                availability = 0
             print(f"{domain} has {availability}% availability percentage")
 
         print("---")
