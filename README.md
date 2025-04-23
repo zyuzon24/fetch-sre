@@ -117,3 +117,8 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 ### 7. Division-by-Zero Protection When Calculating Availability
 - **Problem:** The availability calculation originally assumed `total > 0` when computing `(up / total) * 100`. While the main loop does increment `total` on every endpoint check, there’s still a theoretical risk, like in future refactors, that the code could attempt to divide by zero.
 - **Fix:** Added a conditional expression to handle the zero case, ensuring that the function returns `0` instead of raising a `ZeroDivisionError` if `total == 0`.
+
+### 8. Incorrect Body Handling
+- **Problem:** The original code used `json=body` when sending requests with payloads. The `body` provided in the YAML file is already a stringified JSON object (e.g., `'{"foo":"bar"}'`). The valid request was being incorrectly marked as a failure due to the API expecting a valid JSON object.
+- **Fix:** Replaced json=body with `data=body`, which sends the body  as provided in the YAML without further encoding.
+- **Identified by:** While testing the YAML sample provided, I noticed that availability was being reported as 25% instead of the expected 50%. After looking through each endpoint and printing the server responses, I confirmed that `sample body up`, which should have succeeded, was failing. Switching to `data=body` resolved the issue and produced the correct 50% availability.

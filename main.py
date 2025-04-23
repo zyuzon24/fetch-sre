@@ -30,9 +30,10 @@ def check_health(endpoint):
             method, 
             url, 
             headers=headers, 
-            json=body,
+            data=body,
             timeout=TIMEOUT
         )
+        
         duration_ms = (time.time() - start) * 1000
         
         if 200 <= response.status_code < 300 and duration_ms <= 500:
