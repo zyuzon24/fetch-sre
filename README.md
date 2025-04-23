@@ -4,11 +4,9 @@
 
 This project monitors the availability of HTTP endpoints defined in a YAML configuration file and outputs cumulative availability by domain.
 
-The code is based on the official Python starter file provided by Fetch.
+The code is based on the Python starter file provided by Fetch.
 
 ---
-
-
 
 ##  Requirements 
 
@@ -73,3 +71,41 @@ https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
 
 - **Problem:** Hardcoding the check frequency and timeout is not ideal for maintainability if the numbers need to be changed in the future.
 - **Fix:** Create constants at the beginning of the script for easier maintanability of the check frequency and timeout.
+
+
+### 5. Use urlparse from urllib library to extract domain
+
+- **Problem:** String splitting was used to extract the domain and could leave ports included
+- **Fix:** Utilize the urlparse within the urllib library, which splits a URL string to its components
+https://docs.python.org/3/library/urllib.parse.html
+- **Identified by:** Testing URLs with ports included
+```
+>>> from urllib.parse import urlparse
+
+>>> ("scheme://netloc/path;parameters?query#fragment")
+ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
+            query='query', fragment='fragment')
+
+>>> o = urlparse("http://docs.python.org:80/3/library/urllib.parse.html?"
+    "highlight=params#url-parsing")
+
+>>> o
+ParseResult(scheme='http', netloc='docs.python.org:80',
+            path='/3/library/urllib.parse.html', params='',
+            query='highlight=params', fragment='url-parsing')
+
+>>> o.scheme
+'http'
+
+>>> o.netloc
+'docs.python.org:80'
+
+>>> o.hostname
+'docs.python.org'
+
+>>> o.port
+80
+
+>>> o._replace(fragment="").geturl()
+'http://docs.python.org:80/3/library/urllib.parse.html?highlight=params'
+```

@@ -2,6 +2,7 @@ import yaml
 import requests
 import time
 from collections import defaultdict
+from urllib.parse import urlparse
 
 CHECK_INTERVAL = 15  # REQUIREMENT: Check every 15 seconds
 TIMEOUT = 0.5  # REQUIREMENT: Endpoint responds in 500ms
@@ -10,6 +11,11 @@ TIMEOUT = 0.5  # REQUIREMENT: Endpoint responds in 500ms
 def load_config(file_path):
     with open(file_path, 'r') as file:
         return yaml.safe_load(file)
+
+# Extract domain from URL (ignores port numbers)
+def extract_domain(url):
+    parsed = urlparse(url)
+    return parsed.hostname
 
 # Function to perform health checks
 def check_health(endpoint):
@@ -43,7 +49,7 @@ def monitor_endpoints(file_path):
 
     while True:
         for endpoint in config:
-            domain = endpoint["url"].split("//")[-1].split("/")[0]
+            domain = extract_domain(endpoint["url"])
             result = check_health(endpoint)
 
             domain_stats[domain]["total"] += 1
