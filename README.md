@@ -111,4 +111,9 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 ```
 
 ### 6. Return Type Changed from "UP"/"DOWN" to True/False
-- **Problem:** The `check_health()` function returned "UP" or "DOWN" strings. While this is readable, this required awkward string comparisons like if result == "UP" in the `monitor_endpoints()` function
+- **Problem:** The `check_health()` function returned "UP" or "DOWN" strings. While this is readable, this required awkward string comparisons like if result == "UP" in the `monitor_endpoints()` function.
+- **Fix:** Replaced "UP"/"DOWN" with True/False. This made it possible to use the result directly in conditionals (if check_health(endpoint):)
+
+### 7. Division-by-Zero Protection When Calculating Availability
+- **Problem:** The availability calculation originally assumed `total > 0` when computing `(up / total) * 100`. While the main loop does increment `total` on every endpoint check, there’s still a theoretical risk, like in future refactors, that the code could attempt to divide by zero.
+- **Fix:** Added a conditional expression to handle the zero case, ensuring that the function returns `0` instead of raising a `ZeroDivisionError` if `total == 0`.
