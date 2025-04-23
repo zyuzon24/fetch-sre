@@ -109,3 +109,6 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 >>> o._replace(fragment="").geturl()
 'http://docs.python.org:80/3/library/urllib.parse.html?highlight=params'
 ```
+
+### 6. Return Type Changed from "UP"/"DOWN" to True/False
+- **Problem:** The `check_health()` function returned "UP" or "DOWN" strings. While this is readable, this required awkward string comparisons like if result == "UP" in the `monitor_endpoints()` function

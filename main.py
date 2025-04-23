@@ -36,11 +36,11 @@ def check_health(endpoint):
         duration_ms = (time.time() - start) * 1000
         
         if 200 <= response.status_code < 300 and duration_ms <= 500:
-            return "UP"
-        else:
-            return "DOWN"
+            return True
     except requests.RequestException:
-        return "DOWN"
+        pass
+    
+    return False
 
 # Main function to monitor endpoints
 def monitor_endpoints(file_path):
@@ -53,10 +53,11 @@ def monitor_endpoints(file_path):
             result = check_health(endpoint)
 
             domain_stats[domain]["total"] += 1
-            if result == "UP":
+            if result:
                 domain_stats[domain]["up"] += 1
 
         # Log cumulative availability percentages
+        print("\n--- Availability Report ---")
         for domain, stats in domain_stats.items():
             availability = round(100 * stats["up"] / stats["total"])
             print(f"{domain} has {availability}% availability percentage")
