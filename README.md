@@ -35,7 +35,7 @@ pip install requests pyyaml colorama
 
 Run the script with the YAML file path as an argument:
 ```
-python main.py sample.yaml
+python main.py original-files/sample.yaml
 ```
 The script will continue running until manually stopped (e.g., `Ctrl+C`).
 
@@ -148,3 +148,6 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
     - Availability reports and general information use the normal color.
 
     This split ensures professional-grade persistent logs while making the terminal output fast and easy to scan at a glance.
+
+https://docs.python.org/3/library/logging.html
+https://docs.python.org/3/library/logging.handlers.html
