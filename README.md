@@ -42,7 +42,6 @@ The script will continue running until manually stopped (e.g., `Ctrl+C`).
 ## Issues Identified and Changes Made
 
 ### 1. Missing Method Default
-
 - **Problem:** `method` field is optional, but if omitted, `requests.request()` receives `NoneType` object and raises an error.
 - **Fix:** Used `endpoint.get('method', 'GET').upper()` to default to `'GET'`.
 - **Identified by:** Running the code and getting an error
@@ -57,24 +56,20 @@ AttributeError: 'NoneType' object has no attribute 'upper'
 ```
 
 ### 2. Headers Could Be NoneType
-
 - **Problem:** Missing `headers` field resulted in `NoneType`, which can cause issues in the event of iterating through multiple headers.
 - **Fix:** Used `endpoint.get('headers', {})` to default to an empty dictionary.
 
 ### 3. No Timeout
-
-- **Problem:** Response times were not measured as it was a missing parameter in `requests.request()`. 
-- **Fix:** Measured latency using `time.time()` and enforced a 500ms timeout with the `requests` library.
+- **Problem:** The original  code did not measure how long each request took, nor did it enforce a timeout when sending requests. Without measuring request duration, it was impossible to determine if endpoints were responding within the required `500ms` threshold. Without a timeout, requests could potentially hang indefinitely, breaking the availability requirement for fast responsiveness.
+- **Fix:** Added timing logic around each request using `time.time()` before and after the `requests.request()` call. Calculated the response duration in milliseconds and validated that it was within 500ms. Also added `timeout=TIMEOUT` directly into the `requests.request()` parameters to enforce a strict upper bound on request execution time.
 https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
 
 ### 4. Set Constants
-
 - **Problem:** Hardcoding the check frequency and timeout is not ideal for maintainability if the numbers need to be changed in the future.
 - **Fix:** Create constants at the beginning of the script for easier maintainability of the check frequency and timeout.
 
 
 ### 5. Use urlparse from urllib library to extract domain
-
 - **Problem:** String splitting was used to extract the domain and could leave ports included
 - **Fix:** Utilize the urlparse within the urllib library, which splits a URL string to its components
 https://docs.python.org/3/library/urllib.parse.html
@@ -107,8 +102,8 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 80
 
 >>> o._replace(fragment="").geturl()
-'http://docs.python.org:80/3/library/urllib.parse.html?highlight=params'
 ```
+'http://docs.python.org:80/3/library/urllib.parse.html?highlight=params'
 
 ### 6. Return Type Changed from "UP"/"DOWN" to True/False
 - **Problem:** The `check_health()` function returned "UP" or "DOWN" strings. While this is readable, this required awkward string comparisons like if result == "UP" in the `monitor_endpoints()` function.
@@ -124,13 +119,11 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 - **Identified by:** While testing the YAML sample provided, I noticed that availability was being reported as 25% instead of the expected 50%. After looking through each endpoint and printing the server responses, I confirmed that `sample body up`, which should have succeeded, was failing. Switching to `data=body` resolved the issue and produced the correct 50% availability.
 
 ### 9. Availability Output Accuracy
-
 - **Problem**: The original starter code rounded availability percentages to the nearest integer, using round(). This causes a loss of precision. This is significant because for example if you have 1 million requests, a 99.99% success rate (100 failed requests) and a 99.95% success rate (500 failed requests) have a significant difference, and rounding these numbers loses that precision.
 
 - **Fix:** Updated the code to preserve decimal precision by formatting availability with two decimal places using `availability = (up / total) * 100` and displaying it with `f"{availability:.2f}%"`. This ensures accurate visibility of changes in success rates over time.
 
 ### 10. Logging System Improved for Terminal and File Output (with Colorization)
-
 - **Problem:** The original  code used only `print()` statements. In early improvements, a logging system was added, but both the terminal and file output shared the same verbose, timestamped format. This made terminal output cluttered and harder to quickly scan, especially during live monitoring.
 
 - **Fix:** Introduced separate log formatters:
