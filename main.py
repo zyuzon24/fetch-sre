@@ -63,10 +63,10 @@ def monitor_endpoints(file_path):
             up = stats["up"]
             total = stats["total"]
             if total > 0:
-                availability = round((up / total) * 100)
+                availability = (up / total) * 100
             else:
                 availability = 0
-            print(f"{domain} has {availability}% availability percentage")
+            print(f"{domain} has {availability:.2f}% availability percentage")
 
         print("---")
         time.sleep(CHECK_INTERVAL)

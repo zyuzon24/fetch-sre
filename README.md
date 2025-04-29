@@ -112,7 +112,7 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 
 ### 6. Return Type Changed from "UP"/"DOWN" to True/False
 - **Problem:** The `check_health()` function returned "UP" or "DOWN" strings. While this is readable, this required awkward string comparisons like if result == "UP" in the `monitor_endpoints()` function.
-- **Fix:** Replaced "UP"/"DOWN" with True/False. This made it possible to use the result directly in conditionals (if check_health(endpoint):)
+- **Fix:** Replaced "UP"/"DOWN" with True/False. This made it possible to use the result directly in conditionals (`if result:`)
 
 ### 7. Division-by-Zero Protection When Calculating Availability
 - **Problem:** The availability calculation originally assumed `total > 0` when computing `(up / total) * 100`. While the main loop does increment `total` on every endpoint check, there’s still a theoretical risk, like in future refactors, that the code could attempt to divide by zero.
@@ -122,3 +122,9 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 - **Problem:** The original code used `json=body` when sending requests with payloads. The `body` provided in the YAML file is already a stringified JSON object (e.g., `'{"foo":"bar"}'`). The valid request was being incorrectly marked as a failure due to the API expecting a valid JSON object.
 - **Fix:** Replaced json=body with `data=body`, which sends the body  as provided in the YAML without further encoding.
 - **Identified by:** While testing the YAML sample provided, I noticed that availability was being reported as 25% instead of the expected 50%. After looking through each endpoint and printing the server responses, I confirmed that `sample body up`, which should have succeeded, was failing. Switching to `data=body` resolved the issue and produced the correct 50% availability.
+
+### 9. Availability Output Accuracy
+
+- **Problem**: The original starter code rounded availability percentages to the nearest integer, using round(). This causes a loss of precision. This is significant because for example if you have 1 million requests, a 99.99% success rate (100 failed requests) and a 99.95% success rate (500 failed requests) have a significant difference, and rounding these numbers loses that precision.
+
+- **Fix:** Updated the code to preserve decimal precision by formatting availability with two decimal places using `availability = (up / total) * 100` and displaying it with `f"{availability:.2f}%"`. This ensures accurate visibility of changes in success rates over time.
