@@ -28,7 +28,7 @@ The code is based on the Python starter file provided by Fetch.
 ### Install Python dependencies
 
 ```
-pip install requests pyyaml
+pip install requests pyyaml colorama
 ```
 
 ## Usage
@@ -70,7 +70,7 @@ https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
 ### 4. Set Constants
 
 - **Problem:** Hardcoding the check frequency and timeout is not ideal for maintainability if the numbers need to be changed in the future.
-- **Fix:** Create constants at the beginning of the script for easier maintanability of the check frequency and timeout.
+- **Fix:** Create constants at the beginning of the script for easier maintainability of the check frequency and timeout.
 
 
 ### 5. Use urlparse from urllib library to extract domain
@@ -128,3 +128,23 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 - **Problem**: The original starter code rounded availability percentages to the nearest integer, using round(). This causes a loss of precision. This is significant because for example if you have 1 million requests, a 99.99% success rate (100 failed requests) and a 99.95% success rate (500 failed requests) have a significant difference, and rounding these numbers loses that precision.
 
 - **Fix:** Updated the code to preserve decimal precision by formatting availability with two decimal places using `availability = (up / total) * 100` and displaying it with `f"{availability:.2f}%"`. This ensures accurate visibility of changes in success rates over time.
+
+### 10. Logging System Improved for Terminal and File Output (with Colorization)
+
+- **Problem:** The original  code used only `print()` statements. In early improvements, a logging system was added, but both the terminal and file output shared the same verbose, timestamped format. This made terminal output cluttered and harder to quickly scan, especially during live monitoring.
+
+- **Fix:** Introduced separate log formatters:
+
+    - The `FileHandler` writes detailed, timestamped, severity-tagged logs into `availability.log`.
+
+    - The `StreamHandler` (console output)  shows only the clean core message, without timestamps or severity.
+
+    Additionally, colorized output was added using colorama:
+
+    - Successful `[OK]`checks are shown in green.
+
+    - Failed `[FAIL]` checks are shown in red.
+
+    - Availability reports and general information use the normal color.
+
+    This split ensures professional-grade persistent logs while making the terminal output fast and easy to scan at a glance.
