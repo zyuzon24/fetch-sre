@@ -143,4 +143,5 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
     This split ensures professional-grade persistent logs while making the terminal output fast and easy to scan at a glance.
 
 > https://docs.python.org/3/library/logging.html
+
 > https://docs.python.org/3/library/logging.handlers.html
