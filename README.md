@@ -145,3 +145,5 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
 > https://docs.python.org/3/library/logging.html
 
 > https://docs.python.org/3/library/logging.handlers.html
+
+> https://pypi.org/project/colorama/
